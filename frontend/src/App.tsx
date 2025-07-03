@@ -1,13 +1,7 @@
-import "./App.css";
-import ListGroup from "./components/ListGroup.tsx";
-function App() {
-  const items = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"];
+import AppRoutes from "./routes/AppRoutes";
 
-  return (
-    <>
-      <ListGroup items={items} heading="List of Items" />
-    </>
-  );
+function App() {
+  return <AppRoutes />;
 }
 
 export default App;
