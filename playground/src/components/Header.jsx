@@ -40,9 +40,69 @@ const Header = () => {
                       useContext
                     </Link>
                   </li>
+                  <li>
+                    <Link className="dropdown-item" to="/useReducer">
+                      useReducer
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/useMemo">
+                      useMemo
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/useCallback">
+                      useCallback
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/useTransition">
+                      useTransition
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/useRef">
+                      useRef
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/useId">
+                      useId
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/customhook">
+                      Custom Hook
+                    </Link>
+                  </li>
                 </ul>
               </li>
               {/* Dropdown End */}
+              <li className="nav-item dropdown">
+                <Link
+                  className="nav-link dropdown-toggle"
+                  to="#"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  React LifeCycles
+                </Link>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link className="dropdown-item" to="/react-lifecycle">
+                      React LifeCycles
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/redux">
+                  Redux
+                </Link>
+              </li>
+              {/* More Dropdown End */}
+
               <li className="nav-item">
                 <Link className="nav-link" to="/">
                   Comming Soon..
