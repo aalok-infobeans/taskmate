@@ -13,14 +13,20 @@ export default function Sidebar() {
     <aside className="w-64 bg-blue-900 text-white flex flex-col py-6 px-4">
       <h2 className="text-2xl font-bold mb-8">TaskMate</h2>
       <nav className="flex-1 space-y-2">
+        <NavLink to="/admin/dashboard" className={navItemStyle}>
+          Dashboard
+        </NavLink>
         <NavLink to="/dashboard" className={navItemStyle}>
           Dashboard
         </NavLink>
-        <NavLink to="/tasks" className={navItemStyle}>
-          Tasks
+        <NavLink to="/todos" className={navItemStyle}>
+          Todos
         </NavLink>
-        <NavLink to="/admin" className={navItemStyle}>
-          Admin
+        <NavLink to="/profile" className={navItemStyle}>
+          Profile
+        </NavLink>
+        <NavLink to="/admin/users" className={navItemStyle}>
+          Users
         </NavLink>
       </nav>
       <button className="flex items-center gap-2 text-white mt-auto hover:text-red-300">
