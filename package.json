@@ -1,0 +1,37 @@
+{
+  "name": "taskmate",
+  "version": "1.0.0",
+  "description": "Full Stack POC – Real-Time Task Manager",
+  "main": "app.js",
+  "scripts": {
+    "start": "NODE_ENV=development node backend/bin/www",
+    "server": "NODE_ENV=development nodemon backend/bin/www",
+    "client": "NODE_ENV=development npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aalok-infobeans/taskmate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/aalok-infobeans/taskmate/issues"
+  },
+  "homepage": "https://github.com/aalok-infobeans/taskmate#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "colors": "^1.4.0",
+    "debug": "^4.4.1",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10"
+  }
+}
