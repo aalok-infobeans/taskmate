@@ -9,22 +9,28 @@ services:
       - mongo-data:/data/db
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: Dockerfile # at root
     ports:
-      - "3000:3000"
+      - "5000:5000"
     environment:
       - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
-      - PORT=${PORT}
+      - PORT=5000
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - APP_DOMAIN=${APP_DOMAIN}
     depends_on:
       - mongo
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "4000:4000"
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
     depends_on:
       - backend
 
