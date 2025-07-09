@@ -20,4 +20,22 @@ router
   .put(protect, userController.updateUserProfile);
 router.post("/logout", authController.logoutUser);
 
+router
+  .route("/:id")
+  .delete(
+    protect,
+    userRoleMiddleWare.canAccess([constants.userRole.admin]),
+    userController.deleteUser
+  )
+  .get(
+    protect,
+    userRoleMiddleWare.canAccess([constants.userRole.admin]),
+    userController.getUserById
+  )
+  .put(
+    protect,
+    userRoleMiddleWare.canAccess([constants.userRole.admin]),
+    userController.updateUser
+  );
+
 module.exports = router;

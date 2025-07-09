@@ -16,6 +16,10 @@ const constants = Object.freeze({
       userNotfound: "User not found",
     },
     bodyEmpty: "Request body is empty",
+    user: {
+      deleteAdminUser: "Admin user can not be deleted",
+      userDeleted: "User deleted successfully",
+    },
   },
 });
 module.exports = constants;

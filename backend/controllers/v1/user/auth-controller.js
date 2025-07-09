@@ -10,7 +10,7 @@ const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email, status: "active" });
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id);
-    res.success(200, { user: user.toJSON() });
+    res.success({ user: user.toJSON() });
   } else {
     return res.serverError(
       401,
@@ -39,7 +39,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     generateToken(res, user._id);
-    res.success(201, { user: user.toJSON() });
+    res.success({ user: user.toJSON() });
   } else {
     return res.serverError(404, ErrorHandler(constants.error.auth.inValidUser));
   }
@@ -50,7 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Public
 const logoutUser = (req, res) => {
   res.clearCookie("jwt");
-  res.success(200, { message: constants.error.auth.LogoutMessage });
+  res.success({ message: constants.error.auth.LogoutMessage });
 };
 
 module.exports = { registerUser, authUser, logoutUser };

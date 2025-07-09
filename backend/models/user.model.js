@@ -33,6 +33,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Indexes
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ role: 1 });
+userSchema.index({ status: 1 });
+userSchema.index({ role: 1, status: 1 }); // composite index
+userSchema.index({ createdAt: -1 }); // for sorting by latest
+
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
