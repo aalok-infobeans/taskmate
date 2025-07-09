@@ -24,14 +24,11 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
         run: |
-          ssh -tt -o ServerAliveInterval=60 -o ServerAliveCountMax=100 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
+          ssh -tt -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
           set -e
 
           echo "✅ Connected to EC2"
 
-          trap "echo 🔚 SSH session ending cleanly" EXIT
-
-          echo "📁 Cloning or Pulling Repo..."
           if [ ! -d "taskmate" ]; then
             git clone https://github.com/aalok-infobeans/taskmate.git
           fi
@@ -48,7 +45,7 @@ jobs:
           PORT=3000
           EOT
 
-          echo "🧹 Stopping existing containers..."
+          echo "🧹 Stopping containers..."
           docker compose down || true
 
           echo "🚀 Starting containers..."
@@ -58,5 +55,5 @@ jobs:
 
           exit 0
           EOF
-            echo "✅ GitHub Action completing cleanly"
+            echo "✅ GitHub Actions SSH step completed cleanly"
             exit 0
