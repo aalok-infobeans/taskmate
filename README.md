@@ -1,4 +1,5 @@
 # taskmate
+
 Full Stack POC – Real-Time Task Manager
 
 TaskMate is a team-based task management web app where users can:
@@ -14,3 +15,4 @@ TaskMate is a team-based task management web app where users can:
 📊 See task status via dashboards
 
 🧑‍💻 Admins manage users and permissions
+#CI - CD added
