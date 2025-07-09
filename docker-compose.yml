@@ -10,8 +10,8 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: . # root of repo
+      dockerfile: ./backend/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -26,7 +26,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: ./frontend/Dockerfile
     ports:
       - "4000:4000"
     environment:
