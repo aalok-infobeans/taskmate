@@ -24,7 +24,7 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
         run: |
-          ssh -tt -o ServerAliveInterval=60 -o ServerAliveCountMax=100 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -tt -o ServerAliveInterval=60 -o ServerAliveCountMax=100 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
             set -e
             echo "✅ Connected to EC2"
 
@@ -45,18 +45,18 @@ jobs:
             docker compose down || true
 
             echo "🚀 Starting new containers..."
-            MONGO_URI="$MONGO_URI" \
+            MONGO_URI="\$MONGO_URI" \
             PORT="3000" \
             NODE_ENV="production" \
-            JWT_SECRET_KEY="$JWT_SECRET_KEY" \
-            APP_DOMAIN="$APP_DOMAIN" \
+            JWT_SECRET_KEY="\$JWT_SECRET_KEY" \
+            APP_DOMAIN="\$APP_DOMAIN" \
             docker compose up --build -d
 
             echo "✅ Deployment Completed Successfully"
             
-            if ps -p $KEEPALIVE_PID > /dev/null 2>&1; then
-              kill $KEEPALIVE_PID
-              wait $KEEPALIVE_PID 2>/dev/null || true
+            if ps -p \$KEEPALIVE_PID > /dev/null 2>&1; then
+              kill \$KEEPALIVE_PID
+              wait \$KEEPALIVE_PID 2>/dev/null || true
             fi
             exit 0
           EOF
