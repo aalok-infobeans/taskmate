@@ -30,7 +30,7 @@ jobs:
           echo "✅ Connected to EC2"
 
           (while true; do echo "💓 KeepAlive - $(date)"; sleep 60; done) &
-          KEEPALIVE_PID=$!
+          KEEPALIVE_PID=\$!
           trap "kill $KEEPALIVE_PID" EXIT
 
           echo "📁 Cloning or Pulling Repo..."
@@ -58,9 +58,9 @@ jobs:
 
           echo "✅ Deployment completed successfully"
 
-          if ps -p $KEEPALIVE_PID > /dev/null 2>&1; then
-            kill $KEEPALIVE_PID
-            wait $KEEPALIVE_PID 2>/dev/null || true
+          if ps -p \$KEEPALIVE_PID > /dev/null 2>&1; then
+            kill \$KEEPALIVE_PID
+            wait \$KEEPALIVE_PID 2>/dev/null || true
           fi
 
           exit 0
