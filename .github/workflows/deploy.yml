@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Add SSH key
+      - name: Add SSH Key
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Deploy to EC2
+      - name: Deploy via SSH
         env:
           MONGO_URI: ${{ secrets.MONGO_URI_PROD }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
@@ -28,9 +28,34 @@ jobs:
             set -e
             echo "✅ Connected to EC2"
 
-            # Keep GitHub session alive
-            (while true; do echo "💓 KeepAlive - $(date)"; sleep 60; done) &
-            KEEPALIVE_PID=$!
-            trap "kill $KEEPALIVE_PID" EXIT
+            # Start KeepAlive
+            (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
+            KEEPALIVE_PID=\$!
+            trap "kill \$KEEPALIVE_PID" EXIT
 
-            echo "🔁 Cloning or pulling l
+            echo "📁 Cloning or Pulling Repo..."
+            if [ ! -d "taskmate" ]; then
+              git clone https://github.com/aalok-infobeans/taskmate.git
+            fi
+
+            cd taskmate
+            git pull origin main
+
+            echo "🧹 Stopping existing containers..."
+            docker compose down || true
+
+            echo "🚀 Starting new containers..."
+            MONGO_URI="$MONGO_URI" \
+            PORT="3000" \
+            NODE_ENV="production" \
+            JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+            APP_DOMAIN="$APP_DOMAIN" \
+            docker compose up --build -d
+
+            echo "✅ Deployment Completed Successfully"
+
+            # Stop KeepAlive
+            kill \$KEEPALIVE_PID
+            wait \$KEEPALIVE_PID 2>/dev/null || true
+            exit 0
+          EOF
