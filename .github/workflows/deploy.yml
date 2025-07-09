@@ -25,42 +25,43 @@ jobs:
           APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
         run: |
           ssh -tt -o ServerAliveInterval=60 -o ServerAliveCountMax=100 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e
-            echo "✅ Connected to EC2"
+          set -e
 
-            (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
-            KEEPALIVE_PID=\$!
-            trap "kill \$KEEPALIVE_PID" EXIT
+          echo "✅ Connected to EC2"
 
-            echo "📁 Cloning or Pulling Repo..."
-            if [ ! -d "taskmate" ]; then
-              git clone https://github.com/aalok-infobeans/taskmate.git
-            fi
+          (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
+          KEEPALIVE_PID=\$!
+          trap "kill \$KEEPALIVE_PID" EXIT
 
-            cd taskmate
-            git pull origin main
+          echo "📁 Cloning or Pulling Repo..."
+          if [ ! -d "taskmate" ]; then
+            git clone https://github.com/aalok-infobeans/taskmate.git
+          fi
 
-            echo "📄 Writing .env file..."
-            cat <<EOT > .env
-MONGO_URI=\${MONGO_URI}
-JWT_SECRET_KEY=\${JWT_SECRET_KEY}
-APP_DOMAIN=\${APP_DOMAIN}
-NODE_ENV=production
-PORT=3000
-EOT
+          cd taskmate
+          git pull origin main
 
-            echo "🧹 Stopping existing containers..."
-            docker compose down || true
+          echo "📄 Writing .env file..."
+          cat > .env <<EOT
+          MONGO_URI=${MONGO_URI}
+          JWT_SECRET_KEY=${JWT_SECRET_KEY}
+          APP_DOMAIN=${APP_DOMAIN}
+          NODE_ENV=production
+          PORT=3000
+          EOT
 
-            echo "🚀 Starting containers..."
-            docker compose --env-file .env up --build -d
+          echo "🧹 Stopping existing containers..."
+          docker compose down || true
 
-            echo "✅ Deployment completed successfully"
+          echo "🚀 Starting containers..."
+          docker compose --env-file .env up --build -d
 
-            if ps -p \$KEEPALIVE_PID > /dev/null 2>&1; then
-              kill \$KEEPALIVE_PID
-              wait \$KEEPALIVE_PID 2>/dev/null || true
-            fi
+          echo "✅ Deployment completed successfully"
 
-            exit 0
+          if ps -p \$KEEPALIVE_PID > /dev/null 2>&1; then
+            kill \$KEEPALIVE_PID
+            wait \$KEEPALIVE_PID 2>/dev/null || true
+          fi
+
+          exit 0
           EOF
