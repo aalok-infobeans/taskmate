@@ -29,9 +29,9 @@ jobs:
 
           echo "✅ Connected to EC2"
 
-          (while true; do echo "💓 KeepAlive - $(date)"; sleep 60; done) &
+          (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
           KEEPALIVE_PID=\$!
-          trap "kill $KEEPALIVE_PID" EXIT
+          trap "test -n \"\$KEEPALIVE_PID\" && kill \$KEEPALIVE_PID 2>/dev/null || true" EXIT
 
           echo "📁 Cloning or Pulling Repo..."
           if [ ! -d "taskmate" ]; then
@@ -57,11 +57,6 @@ jobs:
           docker compose --env-file .env up --build -d
 
           echo "✅ Deployment completed successfully"
-
-          if [ ! -z "$KEEPALIVE_PID" ] && ps -p $KEEPALIVE_PID > /dev/null 2>&1; then
-            kill $KEEPALIVE_PID || true
-            wait $KEEPALIVE_PID 2>/dev/null || true
-          fi
 
           exit 0
           EOF
