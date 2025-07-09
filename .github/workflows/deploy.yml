@@ -1,57 +1,40 @@
-name: Deploy to EC2
+- name: Deploy to EC2
+  env:
+    MONGO_URI: ${{ secrets.MONGO_URI_PROD }}
+    JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+    APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+  run: |
+    ssh -tt -o ServerAliveInterval=60 -o ServerAliveCountMax=100 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
+      set -e
+      echo "✅ Connected to EC2"
 
-on:
-  push:
-    branches:
-      - main
+      # Keep GitHub session alive
+      (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
+      KEEPALIVE_PID=\$!
+      trap "kill \$KEEPALIVE_PID" EXIT
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      echo "🔁 Cloning or pulling latest code..."
+      if [ ! -d "taskmate" ]; then
+        git clone https://github.com/aalok-infobeans/taskmate.git
+      fi
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      cd taskmate
+      git pull origin main
 
-      - name: Add SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      echo "🧹 Stopping old containers..."
+      docker compose down || true
 
-      - name: Deploy to EC2
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI_PROD }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
-        run: |
-          ssh -tt -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
-            set -e
+      echo "🚀 Starting containers..."
+      MONGO_URI="$MONGO_URI" \
+      PORT="3000" \
+      NODE_ENV="production" \
+      JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+      APP_DOMAIN="$APP_DOMAIN" \
+      docker compose up --build -d
 
-            echo "✅ Connected to EC2"
+      echo "✅ Deployment completed successfully"
 
-            # Keep GitHub session alive
-            (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
-            KEEPALIVE_PID=\$!
-            trap "kill \$KEEPALIVE_PID" EXIT
-
-            # Pull latest code
-            if [ ! -d "taskmate" ]; then
-              git clone https://github.com/aalok-infobeans/taskmate.git
-            fi
-
-            cd taskmate
-            git pull origin main
-
-            echo "🧹 Stopping old containers..."
-            docker compose down || true
-
-            echo "🚀 Starting containers..."
-            MONGO_URI="\$MONGO_URI" \
-            PORT="3000" \
-            NODE_ENV="production" \
-            JWT_SECRET_KEY="\$JWT_SECRET_KEY" \
-            APP_DOMAIN="\$APP_DOMAIN" \
-            docker compose up --build -d
-
-            echo "✅ Deployment completed successfully"
-          EOF
+      # ✅ Properly stop the keepalive loop
+      kill \$KEEPALIVE_PID
+      wait \$KEEPALIVE_PID 2>/dev/null || true
+    EOF
