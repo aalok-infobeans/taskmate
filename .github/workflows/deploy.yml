@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # allows manual trigger from GitHub UI
 
 jobs:
   deploy:
@@ -21,19 +20,21 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -tt -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e  # fail-fast if any command fails
+          ssh -tt -o ServerAliveInterval=60 -o ServerAliveCountMax=100 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
 
             echo "✅ Connected to EC2"
 
-            # Export env vars
+            # Heartbeat to avoid GitHub timeout
+            (while true; do echo "💓 KeepAlive - $(date)"; sleep 60; done) &
+
             export MONGO_URI="${{ secrets.MONGO_URI_PROD }}"
-            export PORT="5000"
-            export NODE_ENV="production"
+            export PORT=5000
+            export NODE_ENV=production
             export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
             export APP_DOMAIN="${{ secrets.APP_DOMAIN }}"
 
-            # Clone or pull repo
+            echo "🔁 Cloning or updating repo..."
             if [ ! -d "taskmate" ]; then
               git clone https://github.com/aalok-infobeans/taskmate.git
             fi
@@ -41,10 +42,10 @@ jobs:
             cd taskmate
             git pull origin main
 
-            echo "🧹 Stopping existing containers..."
+            echo "🧹 Stopping old containers..."
             docker compose down || true
 
-            echo "🚀 Starting containers..."
+            echo "🚀 Building and starting Docker containers..."
             MONGO_URI=$MONGO_URI \
             PORT=$PORT \
             NODE_ENV=$NODE_ENV \
@@ -53,4 +54,6 @@ jobs:
             docker compose up --build -d
 
             echo "✅ Deployment completed successfully"
+
+            kill %1  # Kill KeepAlive background loop
           EOF
