@@ -11,13 +11,13 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile # at root
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
       - MONGO_URI=${MONGO_URI}
       - NODE_ENV=production
-      - PORT=5000
+      - PORT=3000
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - APP_DOMAIN=${APP_DOMAIN}
     depends_on:
