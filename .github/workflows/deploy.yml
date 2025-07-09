@@ -25,16 +25,19 @@ jobs:
 
             echo "✅ Connected to EC2"
 
-            # Heartbeat to avoid GitHub timeout
-            (while true; do echo "💓 KeepAlive - $(date)"; sleep 60; done) &
+            # Keep GitHub Actions alive to avoid broken pipe
+            (while true; do echo "💓 KeepAlive - \$(date)"; sleep 60; done) &
+            KEEPALIVE_PID=$!
+            trap "kill \$KEEPALIVE_PID" EXIT
 
+            # Export environment variables from GitHub Secrets
             export MONGO_URI="${{ secrets.MONGO_URI_PROD }}"
             export PORT=5000
             export NODE_ENV=production
             export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
             export APP_DOMAIN="${{ secrets.APP_DOMAIN }}"
 
-            echo "🔁 Cloning or updating repo..."
+            echo "🔁 Cloning or pulling latest code..."
             if [ ! -d "taskmate" ]; then
               git clone https://github.com/aalok-infobeans/taskmate.git
             fi
@@ -45,15 +48,13 @@ jobs:
             echo "🧹 Stopping old containers..."
             docker compose down || true
 
-            echo "🚀 Building and starting Docker containers..."
-            MONGO_URI=$MONGO_URI \
-            PORT=$PORT \
-            NODE_ENV=$NODE_ENV \
-            JWT_SECRET_KEY=$JWT_SECRET_KEY \
-            APP_DOMAIN=$APP_DOMAIN \
+            echo "🚀 Starting containers with updated code..."
+            MONGO_URI=\$MONGO_URI \
+            PORT=\$PORT \
+            NODE_ENV=\$NODE_ENV \
+            JWT_SECRET_KEY=\$JWT_SECRET_KEY \
+            APP_DOMAIN=\$APP_DOMAIN \
             docker compose up --build -d
 
             echo "✅ Deployment completed successfully"
-
-            kill %1  # Kill KeepAlive background loop
-          EOF
+EOF
