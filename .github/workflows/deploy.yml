@@ -58,9 +58,9 @@ jobs:
 
           echo "✅ Deployment completed successfully"
 
-          if ps -p \$KEEPALIVE_PID > /dev/null 2>&1; then
-            kill \$KEEPALIVE_PID
-            wait \$KEEPALIVE_PID 2>/dev/null || true
+          if [ ! -z "$KEEPALIVE_PID" ] && ps -p $KEEPALIVE_PID > /dev/null 2>&1; then
+            kill $KEEPALIVE_PID || true
+            wait $KEEPALIVE_PID 2>/dev/null || true
           fi
 
           exit 0
